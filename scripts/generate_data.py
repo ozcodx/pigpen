@@ -55,7 +55,6 @@ def save_image(image, letter, output_dir):
     
     # Guardar la imagen
     cv2.imwrite(filename, image)
-    print(f"Imagen guardada: {filename}")
     
     return filename
 
@@ -204,39 +203,30 @@ def rotate_90_clockwise(image):
 
 def generate_base_letters(output_dir, debug=False):
     """Genera las imágenes base del cifrado Pigpen."""
-    print("\nGenerando letras base:")
     
     # Generar las letras base sin punto
-    print("- Generando letra A (ángulo de 90 grados abajo y a la derecha)")
     a_img = draw_letter_A(False)
     save_image(a_img, 'A', output_dir)
     
-    print("- Generando letra S (2 líneas diagonales formando una V)")
     s_img = draw_letter_S(False)
     save_image(s_img, 'S', output_dir)
     
-    print("- Generando letra B (3 líneas: izquierda, derecha y abajo)")
     b_img = draw_letter_B(False)
     save_image(b_img, 'B', output_dir)
     
-    print("- Generando letra E (4 líneas formando un cuadrado)")
     e_img = draw_letter_E(False)
     save_image(e_img, 'E', output_dir)
     
     # Generar las letras base con punto
-    print("- Generando letra J (A con punto)")
     j_img = draw_letter_A(True)
     save_image(j_img, 'J', output_dir)
     
-    print("- Generando letra W (S con punto)")
     w_img = draw_letter_S(True)
     save_image(w_img, 'W', output_dir)
     
-    print("- Generando letra K (B con punto)")
     k_img = draw_letter_B(True)
     save_image(k_img, 'K', output_dir)
     
-    print("- Generando letra N (E con punto)")
     n_img = draw_letter_E(True)
     save_image(n_img, 'N', output_dir)
     
@@ -255,10 +245,8 @@ def generate_base_letters(output_dir, debug=False):
 
 def generate_derived_letters(output_dir, debug=False):
     """Genera las letras derivadas mediante rotaciones y flips de las letras base."""
-    print("\nGenerando letras derivadas:")
     
     # Derivadas de A
-    print("- Derivadas de A:")
     a_image = draw_letter_A(False)
     c_image = flip_horizontal(a_image)
     save_image(c_image, 'C', output_dir)
@@ -271,7 +259,6 @@ def generate_derived_letters(output_dir, debug=False):
     save_image(i_image, 'I', output_dir)
     
     # Derivadas de B
-    print("- Derivadas de B:")
     b_image = draw_letter_B(False)
     f_image = rotate_90_clockwise(b_image)
     save_image(f_image, 'F', output_dir)
@@ -284,7 +271,6 @@ def generate_derived_letters(output_dir, debug=False):
     save_image(d_image, 'D', output_dir)
     
     # Derivadas de S
-    print("- Derivadas de S:")
     s_image = draw_letter_S(False)
     u_image = rotate_90_clockwise(s_image)
     save_image(u_image, 'U', output_dir)
@@ -297,7 +283,6 @@ def generate_derived_letters(output_dir, debug=False):
     save_image(t_image, 'T', output_dir)
     
     # Derivadas de J
-    print("- Derivadas de J:")
     j_image = draw_letter_A(True)
     l_image = flip_horizontal(j_image)
     save_image(l_image, 'L', output_dir)
@@ -310,7 +295,6 @@ def generate_derived_letters(output_dir, debug=False):
     save_image(r_image, 'R', output_dir)
     
     # Derivadas de K
-    print("- Derivadas de K:")
     k_image = draw_letter_B(True)
     o_image = rotate_90_clockwise(k_image)
     save_image(o_image, 'O', output_dir)
@@ -323,7 +307,6 @@ def generate_derived_letters(output_dir, debug=False):
     save_image(m_image, 'M', output_dir)
     
     # Derivadas de W
-    print("- Derivadas de W:")
     w_image = draw_letter_S(True)
     y_image = rotate_90_clockwise(w_image)
     save_image(y_image, 'Y', output_dir)
@@ -357,7 +340,6 @@ def main():
         generate_derived_letters(args.output, args.debug)
     
     print("\nProceso completado. Se han generado todas las imágenes solicitadas.")
-    print(f"Las imágenes se han guardado en: {args.output}")
 
 if __name__ == "__main__":
     main() 
