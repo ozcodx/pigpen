@@ -32,7 +32,7 @@ MAX_MUTATIONS = 5
 def parse_arguments():
     """Analiza los argumentos de línea de comandos."""
     parser = argparse.ArgumentParser(description='Genera imágenes de caracteres del cifrado Pigpen.')
-    parser.add_argument('--output', '-o', default='data/unclassified', 
+    parser.add_argument('--output', '-o', default='data/generated', 
                         help='Directorio de salida para las imágenes generadas')
     parser.add_argument('--size', type=int, default=IMAGE_SIZE, 
                         help='Tamaño de las imágenes generadas (ancho=alto)')
@@ -48,6 +48,8 @@ def parse_arguments():
                         help='Número mínimo de mutaciones a aplicar por imagen')
     parser.add_argument('--max-mutations', type=int, default=MAX_MUTATIONS,
                         help='Número máximo de mutaciones a aplicar por imagen')
+    parser.add_argument('--count', '-c', type=int, default=10,
+                        help='Número de imágenes a generar por letra (por defecto: 10)')
     return parser.parse_args()
 
 def generate_random_id():
@@ -254,8 +256,9 @@ def apply_mutations(image):
 
 def save_image(image, letter, output_dir):
     """Guarda la imagen con un nombre que incluye la letra y un ID aleatorio."""
-    # Crear el directorio si no existe
-    os.makedirs(output_dir, exist_ok=True)
+    # Crear el directorio específico para la letra
+    letter_dir = os.path.join(output_dir, letter)
+    os.makedirs(letter_dir, exist_ok=True)
     
     # Aplicar mutaciones aleatorias a la imagen
     mutated_image, applied_effects = apply_mutations(image)
@@ -265,12 +268,20 @@ def save_image(image, letter, output_dir):
     
     # Crear el nombre del archivo con los efectos aplicados
     effects_str = "_".join(applied_effects)
-    filename = os.path.join(output_dir, f"{letter}_{effects_str}_{random_id}.png")
+    filename = os.path.join(letter_dir, f"{effects_str}_{random_id}.png")
     
     # Guardar la imagen
     cv2.imwrite(filename, mutated_image)
     
     return filename
+
+def generate_multiple_images(image, letter, output_dir, count=10):
+    """Genera múltiples imágenes mutadas para una letra."""
+    filenames = []
+    for _ in range(count):
+        filename = save_image(image, letter, output_dir)
+        filenames.append(filename)
+    return filenames
 
 def create_base_image():
     """Crea una imagen base en blanco."""
@@ -415,34 +426,34 @@ def rotate_90_clockwise(image):
     """Rota la imagen 90 grados en sentido horario."""
     return cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
 
-def generate_base_letters(output_dir, debug=False):
+def generate_base_letters(output_dir, count=10, debug=False):
     """Genera las imágenes base del cifrado Pigpen."""
     
     # Generar las letras base sin punto
     i_img = draw_letter_A(False)
-    save_image(i_img, 'I', output_dir)
+    generate_multiple_images(i_img, 'I', output_dir, count)
     
     v_img = draw_letter_S(False)
-    save_image(v_img, 'V', output_dir)
+    generate_multiple_images(v_img, 'V', output_dir, count)
     
     b_img = draw_letter_B(False)
-    save_image(b_img, 'B', output_dir)
+    generate_multiple_images(b_img, 'B', output_dir, count)
     
     e_img = draw_letter_E(False)
-    save_image(e_img, 'E', output_dir)
+    generate_multiple_images(e_img, 'E', output_dir, count)
     
     # Generar las letras base con punto
     r_img = draw_letter_A(True)
-    save_image(r_img, 'R', output_dir)
+    generate_multiple_images(r_img, 'R', output_dir, count)
     
     z_img = draw_letter_S(True)
-    save_image(z_img, 'Z', output_dir)
+    generate_multiple_images(z_img, 'Z', output_dir, count)
     
     k_img = draw_letter_B(True)
-    save_image(k_img, 'K', output_dir)
+    generate_multiple_images(k_img, 'K', output_dir, count)
     
     n_img = draw_letter_E(True)
-    save_image(n_img, 'N', output_dir)
+    generate_multiple_images(n_img, 'N', output_dir, count)
     
     if debug:
         # Mostrar las imágenes para depuración
@@ -457,80 +468,80 @@ def generate_base_letters(output_dir, debug=False):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-def generate_derived_letters(output_dir, debug=False):
+def generate_derived_letters(output_dir, count=10, debug=False):
     """Genera las letras derivadas mediante rotaciones y flips de las letras base."""
     
     # Derivadas de I (antes A)
     i_image = draw_letter_A(False)
     g_image = flip_horizontal(i_image)
-    save_image(g_image, 'G', output_dir)
+    generate_multiple_images(g_image, 'G', output_dir, count)
     
     c_image = flip_vertical(i_image)
-    save_image(c_image, 'C', output_dir)
+    generate_multiple_images(c_image, 'C', output_dir, count)
     
     # Derivadas de G (antes C)
     a_image = flip_vertical(g_image)
-    save_image(a_image, 'A', output_dir)
+    generate_multiple_images(a_image, 'A', output_dir, count)
     
     # Derivadas de B
     b_image = draw_letter_B(False)
     f_image = rotate_90_clockwise(b_image)
-    save_image(f_image, 'F', output_dir)
+    generate_multiple_images(f_image, 'F', output_dir, count)
     
     h_image = flip_vertical(b_image)
-    save_image(h_image, 'H', output_dir)
+    generate_multiple_images(h_image, 'H', output_dir, count)
     
     # Derivadas de F (que es B girada 90 grados)
     d_image = flip_horizontal(f_image)
-    save_image(d_image, 'D', output_dir)
+    generate_multiple_images(d_image, 'D', output_dir, count)
     
     # Derivadas de V (antes S)
     v_image = draw_letter_S(False)
     t_image = rotate_90_clockwise(v_image)
-    save_image(t_image, 'T', output_dir)
+    generate_multiple_images(t_image, 'T', output_dir, count)
     
     s_image = flip_vertical(v_image)
-    save_image(s_image, 'S', output_dir)
+    generate_multiple_images(s_image, 'S', output_dir, count)
     
     # Derivadas de T (que es V girada 90 grados)
     u_image = flip_horizontal(t_image)
-    save_image(u_image, 'U', output_dir)
+    generate_multiple_images(u_image, 'U', output_dir, count)
     
     # Derivadas de R (antes J)
     r_image = draw_letter_A(True)
     p_image = flip_horizontal(r_image)
-    save_image(p_image, 'P', output_dir)
+    generate_multiple_images(p_image, 'P', output_dir, count)
     
     l_image = flip_vertical(r_image)
-    save_image(l_image, 'L', output_dir)
+    generate_multiple_images(l_image, 'L', output_dir, count)
     
     # Derivadas de P (que es R girada horizontalmente)
     j_image = flip_vertical(p_image)
-    save_image(j_image, 'J', output_dir)
+    generate_multiple_images(j_image, 'J', output_dir, count)
     
     # Derivadas de K
     k_image = draw_letter_B(True)
     o_image = rotate_90_clockwise(k_image)
-    save_image(o_image, 'O', output_dir)
+    generate_multiple_images(o_image, 'O', output_dir, count)
     
     q_image = flip_vertical(k_image)
-    save_image(q_image, 'Q', output_dir)
+    generate_multiple_images(q_image, 'Q', output_dir, count)
     
     # Derivadas de O (que es K girada 90 grados)
     m_image = flip_horizontal(o_image)
-    save_image(m_image, 'M', output_dir)
+    generate_multiple_images(m_image, 'M', output_dir, count)
     
     # Derivadas de Z (antes W)
     z_image = draw_letter_S(True)
     x_image = rotate_90_clockwise(z_image)
-    save_image(x_image, 'X', output_dir)
+    generate_multiple_images(x_image, 'X', output_dir, count)
     
     w_image = flip_vertical(z_image)
-    save_image(w_image, 'W', output_dir)
+    generate_multiple_images(w_image, 'W', output_dir, count)
     
     # Derivadas de X (que es Z girada 90 grados)
     y_image = flip_horizontal(x_image)
-    save_image(y_image, 'Y', output_dir)
+    generate_multiple_images(y_image, 'Y', output_dir, count)
 
 def main():
     """Función principal."""
@@ -555,14 +566,22 @@ def main():
     print(f"Grosor de línea: {LINE_THICKNESS}")
     print(f"Intensidad de mutaciones: {MUTATION_INTENSITY}")
     print(f"Número de mutaciones por imagen: {MIN_MUTATIONS}-{MAX_MUTATIONS}")
+    print(f"Imágenes por letra: {args.count}")
     print(f"Directorio de salida: {output_dir}")
     
+    # Calcular el número total de imágenes que se generarán
+    total_letters = 8  # Letras base (I, V, B, E, R, Z, K, N)
+    if args.all:
+        total_letters = 26  # Todas las letras (A-Z)
+    total_images = total_letters * args.count
+    print(f"Se generarán un total de {total_images} imágenes ({total_letters} letras x {args.count} imágenes)")
+    
     # Generar las letras base
-    generate_base_letters(output_dir, args.debug)
+    generate_base_letters(output_dir, args.count, args.debug)
     
     # Si se solicita, generar todas las letras
     if args.all:
-        generate_derived_letters(output_dir, args.debug)
+        generate_derived_letters(output_dir, args.count, args.debug)
     
     print("\nProceso completado. Se han generado todas las imágenes solicitadas.")
 
