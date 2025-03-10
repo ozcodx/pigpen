@@ -24,7 +24,7 @@ LINE_COLOR = 255
 # Tamaño del punto central
 DOT_RADIUS = 7
 # Intensidad de las mutaciones (0-1)
-MUTATION_INTENSITY = 0.5
+MUTATION_INTENSITY = 0.8
 
 def parse_arguments():
     """Analiza los argumentos de línea de comandos."""
@@ -80,7 +80,7 @@ def apply_mutations(image):
             map_y = np.zeros((rows, cols), dtype=np.float32)
             
             # Calcular la intensidad de la deformación (aumentada)
-            intensity = random.uniform(0.01, MUTATION_INTENSITY * 0.15)
+            intensity = random.uniform(0.01, MUTATION_INTENSITY * 0.05)
             
             # Crear la deformación con frecuencia más alta
             for i in range(rows):
@@ -140,7 +140,7 @@ def apply_mutations(image):
             # Escalar más notablemente la imagen
             rows, cols = mutated_image.shape
             # Calcular el factor de escala (aumentado)
-            scale_factor = random.uniform(1 - MUTATION_INTENSITY * 0.25, 1 + MUTATION_INTENSITY * 0.25)
+            scale_factor = random.uniform(1 - MUTATION_INTENSITY * 0.3, 1 + MUTATION_INTENSITY * 0.3)
             # Calcular las nuevas dimensiones
             new_width = int(cols * scale_factor)
             new_height = int(rows * scale_factor)
