@@ -25,6 +25,9 @@ LINE_COLOR = 255
 DOT_RADIUS = 7
 # Intensidad de las mutaciones (0-1)
 MUTATION_INTENSITY = 0.8
+# Variables globales
+MIN_MUTATIONS = 3
+MAX_MUTATIONS = 5
 
 def parse_arguments():
     """Analiza los argumentos de línea de comandos."""
@@ -41,6 +44,10 @@ def parse_arguments():
                         help='Mostrar imágenes para depuración')
     parser.add_argument('--mutation-intensity', type=float, default=MUTATION_INTENSITY,
                         help='Intensidad de las mutaciones (0-1)')
+    parser.add_argument('--min-mutations', type=int, default=MIN_MUTATIONS,
+                        help='Número mínimo de mutaciones a aplicar por imagen')
+    parser.add_argument('--max-mutations', type=int, default=MAX_MUTATIONS,
+                        help='Número máximo de mutaciones a aplicar por imagen')
     return parser.parse_args()
 
 def generate_random_id():
@@ -50,7 +57,7 @@ def generate_random_id():
 def apply_mutations(image):
     """
     Aplica mutaciones aleatorias a la imagen para generar variaciones únicas.
-    Incluye: wrap, tilt, noise, shift, y otras transformaciones.
+    Incluye: wrap, tilt, noise, shift, blur, scale, perspective, erosion, dilation, waves, rotation.
     
     Returns:
         tuple: (imagen_mutada, lista_de_efectos_aplicados)
@@ -60,11 +67,12 @@ def apply_mutations(image):
     
     # Lista de posibles mutaciones
     mutations = [
-        'wrap', 'tilt', 'noise', 'shift', 'blur', 'scale', 'perspective'
+        'wrap', 'tilt', 'noise', 'shift', 'blur', 'scale', 'perspective',
+        'erosion', 'dilation', 'waves', 'rotation'
     ]
     
-    # Seleccionar aleatoriamente 2-4 mutaciones para aplicar (aumentado de 1-3)
-    num_mutations = random.randint(2, 4)
+    # Seleccionar aleatoriamente MIN_MUTATIONS-MAX_MUTATIONS mutaciones para aplicar
+    num_mutations = random.randint(MIN_MUTATIONS, MAX_MUTATIONS)
     selected_mutations = random.sample(mutations, min(num_mutations, len(mutations)))
     
     # Lista para almacenar los efectos aplicados
@@ -187,6 +195,60 @@ def apply_mutations(image):
             # Aplicar la transformación
             mutated_image = cv2.warpPerspective(mutated_image, M, (cols, rows), borderValue=0)
             applied_effects.append(f"persp{max_offset}")
+            
+        elif mutation == 'erosion':
+            # Aplicar erosión para adelgazar las líneas
+            kernel_size = random.randint(1, max(1, int(3 * MUTATION_INTENSITY)))
+            if kernel_size % 2 == 0:
+                kernel_size += 1
+            kernel = np.ones((kernel_size, kernel_size), np.uint8)
+            mutated_image = cv2.erode(mutated_image, kernel, iterations=1)
+            applied_effects.append(f"erosion{kernel_size}")
+            
+        elif mutation == 'dilation':
+            # Aplicar dilatación para engrosar las líneas
+            kernel_size = random.randint(1, max(1, int(3 * MUTATION_INTENSITY)))
+            if kernel_size % 2 == 0:
+                kernel_size += 1
+            kernel = np.ones((kernel_size, kernel_size), np.uint8)
+            mutated_image = cv2.dilate(mutated_image, kernel, iterations=1)
+            applied_effects.append(f"dilation{kernel_size}")
+            
+        elif mutation == 'waves':
+            # Aplicar efecto de ondas
+            rows, cols = mutated_image.shape
+            # Crear matrices de mapeo
+            map_x = np.zeros((rows, cols), dtype=np.float32)
+            map_y = np.zeros((rows, cols), dtype=np.float32)
+            
+            # Calcular parámetros de las ondas
+            x_amplitude = random.uniform(3, 10) * MUTATION_INTENSITY
+            y_amplitude = random.uniform(3, 10) * MUTATION_INTENSITY
+            x_wavelength = random.uniform(30, 100)
+            y_wavelength = random.uniform(30, 100)
+            
+            # Crear el efecto de ondas
+            for i in range(rows):
+                for j in range(cols):
+                    map_x[i, j] = j + x_amplitude * math.sin(i / x_wavelength)
+                    map_y[i, j] = i + y_amplitude * math.cos(j / y_wavelength)
+            
+            # Aplicar la distorsión
+            mutated_image = cv2.remap(mutated_image, map_x, map_y, cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
+            applied_effects.append(f"waves{x_amplitude:.1f}_{y_amplitude:.1f}")
+            
+        elif mutation == 'rotation':
+            # Aplicar una rotación aleatoria
+            rows, cols = mutated_image.shape
+            # Calcular el ángulo de rotación (entre -15 y 15 grados)
+            angle = random.uniform(-15 * MUTATION_INTENSITY, 15 * MUTATION_INTENSITY)
+            # Calcular el centro de la imagen
+            center = (cols // 2, rows // 2)
+            # Crear la matriz de rotación
+            M = cv2.getRotationMatrix2D(center, angle, 1.0)
+            # Aplicar la rotación
+            mutated_image = cv2.warpAffine(mutated_image, M, (cols, rows), borderValue=0)
+            applied_effects.append(f"rot{angle:.1f}")
     
     return mutated_image, applied_effects
 
@@ -475,10 +537,12 @@ def main():
     args = parse_arguments()
     
     # Actualizar variables globales según los argumentos
-    global IMAGE_SIZE, LINE_THICKNESS, MUTATION_INTENSITY
+    global IMAGE_SIZE, LINE_THICKNESS, MUTATION_INTENSITY, MIN_MUTATIONS, MAX_MUTATIONS
     IMAGE_SIZE = args.size
     LINE_THICKNESS = args.thickness
     MUTATION_INTENSITY = args.mutation_intensity
+    MIN_MUTATIONS = args.min_mutations
+    MAX_MUTATIONS = args.max_mutations
     
     # Convertir la ruta de salida a una ruta absoluta si es relativa
     output_dir = args.output
@@ -490,6 +554,7 @@ def main():
     print(f"Tamaño de imagen: {IMAGE_SIZE}x{IMAGE_SIZE}")
     print(f"Grosor de línea: {LINE_THICKNESS}")
     print(f"Intensidad de mutaciones: {MUTATION_INTENSITY}")
+    print(f"Número de mutaciones por imagen: {MIN_MUTATIONS}-{MAX_MUTATIONS}")
     print(f"Directorio de salida: {output_dir}")
     
     # Generar las letras base
