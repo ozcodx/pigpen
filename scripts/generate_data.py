@@ -222,9 +222,9 @@ def create_base_image():
 
 def draw_letter_A(with_dot=False):
     """
-    Dibuja la letra A del cifrado Pigpen:
+    Dibuja la letra I del cifrado Pigpen:
     - 2 líneas formando un ángulo de 90 grados abajo y a la derecha
-    Si with_dot=True, dibuja la letra J (A con un punto en el centro)
+    Si with_dot=True, dibuja la letra R (I con un punto en el centro)
     """
     image, margin = create_base_image()
     
@@ -250,9 +250,9 @@ def draw_letter_A(with_dot=False):
 
 def draw_letter_S(with_dot=False):
     """
-    Dibuja la letra S del cifrado Pigpen:
+    Dibuja la letra V del cifrado Pigpen:
     - 2 líneas diagonales formando una V
-    Si with_dot=True, dibuja la letra W (S con un punto en el centro)
+    Si with_dot=True, dibuja la letra Z (V con un punto en el centro)
     """
     image, margin = create_base_image()
     
@@ -357,11 +357,11 @@ def generate_base_letters(output_dir, debug=False):
     """Genera las imágenes base del cifrado Pigpen."""
     
     # Generar las letras base sin punto
-    a_img = draw_letter_A(False)
-    save_image(a_img, 'A', output_dir)
+    i_img = draw_letter_A(False)
+    save_image(i_img, 'I', output_dir)
     
-    s_img = draw_letter_S(False)
-    save_image(s_img, 'S', output_dir)
+    v_img = draw_letter_S(False)
+    save_image(v_img, 'V', output_dir)
     
     b_img = draw_letter_B(False)
     save_image(b_img, 'B', output_dir)
@@ -370,11 +370,11 @@ def generate_base_letters(output_dir, debug=False):
     save_image(e_img, 'E', output_dir)
     
     # Generar las letras base con punto
-    j_img = draw_letter_A(True)
-    save_image(j_img, 'J', output_dir)
+    r_img = draw_letter_A(True)
+    save_image(r_img, 'R', output_dir)
     
-    w_img = draw_letter_S(True)
-    save_image(w_img, 'W', output_dir)
+    z_img = draw_letter_S(True)
+    save_image(z_img, 'Z', output_dir)
     
     k_img = draw_letter_B(True)
     save_image(k_img, 'K', output_dir)
@@ -384,12 +384,12 @@ def generate_base_letters(output_dir, debug=False):
     
     if debug:
         # Mostrar las imágenes para depuración
-        cv2.imshow("A", a_img)
-        cv2.imshow("S", s_img)
+        cv2.imshow("I", i_img)
+        cv2.imshow("V", v_img)
         cv2.imshow("B", b_img)
         cv2.imshow("E", e_img)
-        cv2.imshow("J", j_img)
-        cv2.imshow("W", w_img)
+        cv2.imshow("R", r_img)
+        cv2.imshow("Z", z_img)
         cv2.imshow("K", k_img)
         cv2.imshow("N", n_img)
         cv2.waitKey(0)
@@ -398,17 +398,17 @@ def generate_base_letters(output_dir, debug=False):
 def generate_derived_letters(output_dir, debug=False):
     """Genera las letras derivadas mediante rotaciones y flips de las letras base."""
     
-    # Derivadas de A
-    a_image = draw_letter_A(False)
-    c_image = flip_horizontal(a_image)
-    save_image(c_image, 'C', output_dir)
-    
-    g_image = flip_vertical(a_image)
+    # Derivadas de I (antes A)
+    i_image = draw_letter_A(False)
+    g_image = flip_horizontal(i_image)
     save_image(g_image, 'G', output_dir)
     
-    # Derivadas de C (que es A girada horizontalmente)
-    i_image = flip_vertical(c_image)
-    save_image(i_image, 'I', output_dir)
+    c_image = flip_vertical(i_image)
+    save_image(c_image, 'C', output_dir)
+    
+    # Derivadas de G (antes C)
+    a_image = flip_vertical(g_image)
+    save_image(a_image, 'A', output_dir)
     
     # Derivadas de B
     b_image = draw_letter_B(False)
@@ -422,29 +422,29 @@ def generate_derived_letters(output_dir, debug=False):
     d_image = flip_horizontal(f_image)
     save_image(d_image, 'D', output_dir)
     
-    # Derivadas de S
-    s_image = draw_letter_S(False)
-    u_image = rotate_90_clockwise(s_image)
-    save_image(u_image, 'U', output_dir)
-    
-    v_image = flip_vertical(s_image)
-    save_image(v_image, 'V', output_dir)
-    
-    # Derivadas de U (que es S girada 90 grados)
-    t_image = flip_horizontal(u_image)
+    # Derivadas de V (antes S)
+    v_image = draw_letter_S(False)
+    t_image = rotate_90_clockwise(v_image)
     save_image(t_image, 'T', output_dir)
     
-    # Derivadas de J
-    j_image = draw_letter_A(True)
-    l_image = flip_horizontal(j_image)
-    save_image(l_image, 'L', output_dir)
+    s_image = flip_vertical(v_image)
+    save_image(s_image, 'S', output_dir)
     
-    p_image = flip_vertical(j_image)
+    # Derivadas de T (que es V girada 90 grados)
+    u_image = flip_horizontal(t_image)
+    save_image(u_image, 'U', output_dir)
+    
+    # Derivadas de R (antes J)
+    r_image = draw_letter_A(True)
+    p_image = flip_horizontal(r_image)
     save_image(p_image, 'P', output_dir)
     
-    # Derivadas de L (que es J girada horizontalmente)
-    r_image = flip_vertical(l_image)
-    save_image(r_image, 'R', output_dir)
+    l_image = flip_vertical(r_image)
+    save_image(l_image, 'L', output_dir)
+    
+    # Derivadas de P (que es R girada horizontalmente)
+    j_image = flip_vertical(p_image)
+    save_image(j_image, 'J', output_dir)
     
     # Derivadas de K
     k_image = draw_letter_B(True)
@@ -458,17 +458,17 @@ def generate_derived_letters(output_dir, debug=False):
     m_image = flip_horizontal(o_image)
     save_image(m_image, 'M', output_dir)
     
-    # Derivadas de W
-    w_image = draw_letter_S(True)
-    y_image = rotate_90_clockwise(w_image)
-    save_image(y_image, 'Y', output_dir)
-    
-    z_image = flip_vertical(w_image)
-    save_image(z_image, 'Z', output_dir)
-    
-    # Derivadas de Y (que es W girada 90 grados)
-    x_image = flip_horizontal(y_image)
+    # Derivadas de Z (antes W)
+    z_image = draw_letter_S(True)
+    x_image = rotate_90_clockwise(z_image)
     save_image(x_image, 'X', output_dir)
+    
+    w_image = flip_vertical(z_image)
+    save_image(w_image, 'W', output_dir)
+    
+    # Derivadas de X (que es Z girada 90 grados)
+    y_image = flip_horizontal(x_image)
+    save_image(y_image, 'Y', output_dir)
 
 def main():
     """Función principal."""
