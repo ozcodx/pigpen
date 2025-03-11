@@ -49,7 +49,7 @@ python scripts/train_model.py --epochs 50 --batch-size 32
 Utiliza el modelo entrenado para identificar caracteres Pigpen en una imagen y mostrar el texto descifrado correspondiente.
 
 ```bash
-python scripts/decrypt_image.py --input path/to/encrypted_image.jpg
+python scripts/decrypt_image.py --model path/to/model --input path/to/encrypted_image.jpg
 ```
 
 ### 4. Generación de Datos (`generate_data.py`)
